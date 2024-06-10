@@ -65,7 +65,8 @@ public class LanguageLearningApp {
         //  new JFrame with the title "Language Learning App"
         frame = new JFrame("Language Learning App");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
+        frame.setSize(550, 350);
+        frame.setResizable(false);
         frame.setLayout(new CardLayout());
         
         // Start Panel
@@ -79,7 +80,7 @@ public class LanguageLearningApp {
 
         // JTextField for user to enter their name
         nameField = new JTextField();
-        nameField.setBounds(150, 50, 300, 30);
+        nameField.setBounds(150, 50, 250, 30);
         startPanel.add(nameField);
 
         // JLabel for the language selection prompt
@@ -89,17 +90,17 @@ public class LanguageLearningApp {
 
         // JComboBox with language options
         languageComboBox = new JComboBox<>(new String[]{"Korean", "Japanese"});
-        languageComboBox.setBounds(150, 120, 300, 30);
+        languageComboBox.setBounds(150, 120, 250, 30);
         startPanel.add(languageComboBox);
 
         // JButton to start the quiz
         JButton startButton = new JButton("Start Quiz");
-        startButton.setBounds(250, 170, 100, 40);
+        startButton.setBounds(170, 170, 200, 40);
         startButton.addActionListener(e -> startQuiz());
         startPanel.add(startButton);
         
         creditsButton = new JButton("Credits");
-        creditsButton.setBounds(250, 220, 100, 40);
+        creditsButton.setBounds(170, 220, 200, 40);
         creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "This Language Quiz was made by Ivan Vay & Taran Singh"));
         startPanel.add(creditsButton);
 
@@ -123,7 +124,7 @@ public class LanguageLearningApp {
         for (int i = 0; i < 3; i++) 
         {
             optionButtons[i] = new JButton();
-            optionButtons[i].setBounds(150, 60 + i * 50, 300, 40);
+            optionButtons[i].setBounds(150, 60 + i * 50, 200, 40);
             int finalI = i;
             optionButtons[i].addActionListener(e -> checkAnswer(optionButtons[finalI].getText()));
             quizPanel.add(optionButtons[i]);
@@ -136,7 +137,7 @@ public class LanguageLearningApp {
         
         // JButton for returning back to Home Screen
         JButton backButton = new JButton("Return Home");
-        backButton.setBounds(250, 250, 120, 40);
+        backButton.setBounds(185, 250, 120, 40);
         backButton.addActionListener(e -> confirmBackToHomeScreen());
         quizPanel.add(backButton);
 
