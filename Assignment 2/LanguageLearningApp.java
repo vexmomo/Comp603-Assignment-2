@@ -91,7 +91,7 @@ public class LanguageLearningApp {
         startPanel.add(startButton);
 
         frame.add(startPanel, "StartPanel");
-
+        
         // Quiz Panel
         JPanel quizPanel = new JPanel();
         quizPanel.setLayout(new GridLayout(6, 1));
@@ -116,6 +116,11 @@ public class LanguageLearningApp {
         scoreLabel = new JLabel("Score: 0");
         quizPanel.add(scoreLabel);
 
+        // JButton for returning back to Home Screen
+        JButton backButton = new JButton("Return Home");
+        backButton.addActionListener(e -> confirmBackToHomeScreen());
+        quizPanel.add(backButton);
+        
         frame.add(quizPanel, "QuizPanel");
 
         frame.setVisible(true);
@@ -236,6 +241,25 @@ public class LanguageLearningApp {
         }
         // Checks if the username only has letters and is 10 or less characters
         return userName.matches("[a-zA-Z\\s]{1,10}");
+    }
+    
+    // Method to allow user's to return back to home screen
+    private void backToHomeScreen() {
+        CardLayout cl = (CardLayout) (frame.getContentPane().getLayout());
+        cl.show(frame.getContentPane(), "StartPanel");
+    }
+
+    // Method to double check if the user want to return back to home screen
+    private void confirmBackToHomeScreen() {
+        int userResponse = JOptionPane.showConfirmDialog(frame,
+                "Are you sure you want to return back to the main home screen?",
+                "Confirm",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (userResponse == JOptionPane.YES_OPTION) {
+            backToHomeScreen();
+        }
     }
 
     private static List<String> generateOptions(String correctTranslation) 
