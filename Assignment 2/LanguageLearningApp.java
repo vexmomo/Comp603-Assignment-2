@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Comp603;
+package pkg603_assignment;
 
 /**
  *
@@ -49,6 +49,9 @@ public class LanguageLearningApp {
     
     // string to store the user's name
     private String userName;
+    
+    // button to show credits
+    private JButton creditsButton;
 
     // Constructor for the main class
     public LanguageLearningApp() 
@@ -67,7 +70,7 @@ public class LanguageLearningApp {
         
         // Start Panel
         JPanel startPanel = new JPanel();
-        startPanel.setLayout(new GridLayout(5, 1));
+        startPanel.setLayout(new GridLayout(6, 1));
 
         // JLabel for the name prompt
         JLabel nameLabel = new JLabel("Please enter your name:");
@@ -89,6 +92,10 @@ public class LanguageLearningApp {
         JButton startButton = new JButton("Start Quiz");
         startButton.addActionListener(e -> startQuiz());
         startPanel.add(startButton);
+        
+        creditsButton = new JButton("Credits");
+        creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "This Language Quiz was made by Ivan Vay & Taran Singh"));
+        startPanel.add(creditsButton);
 
         frame.add(startPanel, "StartPanel");
 
