@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package pkg603_assignment;
+package Comp603;
 
 /**
  *
@@ -64,7 +64,7 @@ public class LanguageLearningApp {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
         frame.setLayout(new CardLayout());
-
+        
         // Start Panel
         JPanel startPanel = new JPanel();
         startPanel.setLayout(new GridLayout(5, 1));
@@ -91,6 +91,8 @@ public class LanguageLearningApp {
         startPanel.add(startButton);
 
         frame.add(startPanel, "StartPanel");
+
+        frame.setVisible(true);
         
         // Quiz Panel
         JPanel quizPanel = new JPanel();
@@ -115,15 +117,13 @@ public class LanguageLearningApp {
         // JLabel for displaying the score
         scoreLabel = new JLabel("Score: 0");
         quizPanel.add(scoreLabel);
-
+        
         // JButton for returning back to Home Screen
         JButton backButton = new JButton("Return Home");
         backButton.addActionListener(e -> confirmBackToHomeScreen());
         quizPanel.add(backButton);
-        
-        frame.add(quizPanel, "QuizPanel");
 
-        frame.setVisible(true);
+        frame.add(quizPanel, "QuizPanel");
     }
 
     // Method to start the quiz
@@ -172,8 +172,8 @@ public class LanguageLearningApp {
             // Save the user's score to a file
             saveScoreToFile(userName, score);
             
-            // Remove all components from the frame
-            frame.getContentPane().removeAll();
+            // Calls the back to the home screen method
+            backToHomeScreen();
             
             // Re-initialize the application
             initialize();
@@ -197,18 +197,7 @@ public class LanguageLearningApp {
 
         // Update the score label
         scoreLabel.setText("Score: " + score);
-        
-        // Remove all components from the frame
-        frame.getContentPane().removeAll();
-        
-        // Add the parent container of the question label to the frame
-        frame.add(questionLabel.getParent());
-        
-        // Revalidate the frame
-        frame.revalidate();
-        
-        // Repaint the frame
-        frame.repaint();
+        ((CardLayout) frame.getContentPane().getLayout()).show(frame.getContentPane(), "QuizPanel");
     }
     
     // Method to check the user's answer
@@ -242,25 +231,6 @@ public class LanguageLearningApp {
         // Checks if the username only has letters and is 10 or less characters
         return userName.matches("[a-zA-Z\\s]{1,10}");
     }
-    
-    // Method to allow user's to return back to home screen
-    private void backToHomeScreen() {
-        CardLayout cl = (CardLayout) (frame.getContentPane().getLayout());
-        cl.show(frame.getContentPane(), "StartPanel");
-    }
-
-    // Method to double check if the user want to return back to home screen
-    private void confirmBackToHomeScreen() {
-        int userResponse = JOptionPane.showConfirmDialog(frame,
-                "Are you sure you want to return back to the main home screen?",
-                "Confirm",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-        if (userResponse == JOptionPane.YES_OPTION) {
-            backToHomeScreen();
-        }
-    }
 
     private static List<String> generateOptions(String correctTranslation) 
     {
@@ -287,6 +257,25 @@ public class LanguageLearningApp {
 
         return options;
     }
+    
+    // Method to allow user's to return back to home screen
+    private void backToHomeScreen() {
+        CardLayout cl = (CardLayout) (frame.getContentPane().getLayout());
+        cl.show(frame.getContentPane(), "StartPanel");
+    }
+    
+    // Method to double check if the user want to return back to home screen
+    private void confirmBackToHomeScreen() {
+        int userResponse = JOptionPane.showConfirmDialog(frame,
+                "Are you sure you want to return back to the main home screen?",
+                "Confirm",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (userResponse == JOptionPane.YES_OPTION) {
+            backToHomeScreen();
+        }
+    }
 
     // Method to save the user's score to a file
     private static void saveScoreToFile(String userName, int score) {
@@ -297,5 +286,3 @@ public class LanguageLearningApp {
         }
     }
 }
-
-
