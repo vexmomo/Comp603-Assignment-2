@@ -70,30 +70,36 @@ public class LanguageLearningApp {
         
         // Start Panel
         JPanel startPanel = new JPanel();
-        startPanel.setLayout(new GridLayout(6, 1));
+        startPanel.setLayout(null); 
 
         // JLabel for the name prompt
         JLabel nameLabel = new JLabel("Please enter your name:");
+        nameLabel.setBounds(150, 20, 300, 30);
         startPanel.add(nameLabel);
 
         // JTextField for user to enter their name
         nameField = new JTextField();
+        nameField.setBounds(150, 50, 300, 30);
         startPanel.add(nameField);
 
         // JLabel for the language selection prompt
         JLabel languageLabel = new JLabel("Select language for quiz:");
+        languageLabel.setBounds(150, 90, 300, 30);
         startPanel.add(languageLabel);
 
         // JComboBox with language options
         languageComboBox = new JComboBox<>(new String[]{"Korean", "Japanese"});
+        languageComboBox.setBounds(150, 120, 300, 30);
         startPanel.add(languageComboBox);
 
         // JButton to start the quiz
         JButton startButton = new JButton("Start Quiz");
+        startButton.setBounds(250, 170, 100, 40);
         startButton.addActionListener(e -> startQuiz());
         startPanel.add(startButton);
         
         creditsButton = new JButton("Credits");
+        creditsButton.setBounds(250, 220, 100, 40);
         creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "This Language Quiz was made by Ivan Vay & Taran Singh"));
         startPanel.add(creditsButton);
 
@@ -103,10 +109,11 @@ public class LanguageLearningApp {
         
         // Quiz Panel
         JPanel quizPanel = new JPanel();
-        quizPanel.setLayout(new GridLayout(6, 1));
+        quizPanel.setLayout(null);
 
         // JLabel for displaying the question
         questionLabel = new JLabel("Question");
+        questionLabel.setBounds(150, 20, 300, 30);
         quizPanel.add(questionLabel);
 
         // Initialize the array of option buttons with a size of 3
@@ -116,6 +123,7 @@ public class LanguageLearningApp {
         for (int i = 0; i < 3; i++) 
         {
             optionButtons[i] = new JButton();
+            optionButtons[i].setBounds(150, 60 + i * 50, 300, 40);
             int finalI = i;
             optionButtons[i].addActionListener(e -> checkAnswer(optionButtons[finalI].getText()));
             quizPanel.add(optionButtons[i]);
@@ -123,10 +131,12 @@ public class LanguageLearningApp {
 
         // JLabel for displaying the score
         scoreLabel = new JLabel("Score: 0");
+        scoreLabel.setBounds(150, 210, 300, 30);
         quizPanel.add(scoreLabel);
         
         // JButton for returning back to Home Screen
         JButton backButton = new JButton("Return Home");
+        backButton.setBounds(250, 250, 120, 40);
         backButton.addActionListener(e -> confirmBackToHomeScreen());
         quizPanel.add(backButton);
 
