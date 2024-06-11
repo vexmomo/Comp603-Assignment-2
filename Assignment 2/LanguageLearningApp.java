@@ -52,6 +52,9 @@ public class LanguageLearningApp {
     
     // button to show credits
     private JButton creditsButton;
+    
+    // Added button to show leaderboard
+    private JButton leaderboardButton;
 
     // Constructor for the main class
     public LanguageLearningApp() 
@@ -65,7 +68,7 @@ public class LanguageLearningApp {
         //  new JFrame with the title "Language Learning App"
         frame = new JFrame("Language Learning App");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(550, 350);
+        frame.setSize(550, 360);
         frame.setResizable(false);
         frame.setLayout(new CardLayout());
         
@@ -103,8 +106,26 @@ public class LanguageLearningApp {
         creditsButton.setBounds(170, 220, 200, 40);
         creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "This Language Quiz was made by Ivan Vay & Taran Singh"));
         startPanel.add(creditsButton);
-
+        
+        leaderboardButton = new JButton("Leaderboard");
+        leaderboardButton.setBounds(170, 270, 200, 40);
+        leaderboardButton.addActionListener(e -> showLeaderboard());
+        startPanel.add(leaderboardButton);
+                
         frame.add(startPanel, "StartPanel");
+        
+        JPanel leaderboardPanel = new JPanel();
+        leaderboardPanel.setLayout(new BorderLayout());
+
+        JTextArea leaderboardArea = new JTextArea("Leaderboard");
+        leaderboardArea.setEditable(false);
+
+        JButton backToStartButton = new JButton("Back To Start");
+        backToStartButton.addActionListener(e -> backToHomeScreen());
+        leaderboardPanel.add(leaderboardArea, BorderLayout.CENTER);
+        leaderboardPanel.add(backToStartButton, BorderLayout.SOUTH);
+
+        frame.add(leaderboardPanel, "LeaderboardPanel");
 
         frame.setVisible(true);
         
@@ -294,7 +315,12 @@ public class LanguageLearningApp {
             backToHomeScreen();
         }
     }
-
+    
+     private void showLeaderboard() {
+        ((CardLayout) frame.getContentPane().getLayout()).show(frame.getContentPane(), "LeaderboardPanel");
+    }
+    
+    
     // Method to save the user's score to a file
     private static void saveScoreToFile(String userName, int score) {
         try (PrintWriter writer = new PrintWriter(new FileWriter("user_scores.txt", true))) {
