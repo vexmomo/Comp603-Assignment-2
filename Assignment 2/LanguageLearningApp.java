@@ -10,13 +10,15 @@ package pkg603_assignment;
  */
 import javax.swing.*;
 import java.awt.*;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
 
 public class LanguageLearningApp {
 
@@ -50,11 +52,17 @@ public class LanguageLearningApp {
     // string to store the user's name
     private String userName;
     
+    // string to store the user's selected subject
+    private String subject;
+    
     // button to show credits
     private JButton creditsButton;
     
     // Added button to show leaderboard
     private JButton leaderboardButton;
+    
+    // text area for storing score to leaderboard
+    private JTextArea leaderboardArea;
 
     // Constructor for the main class
     public LanguageLearningApp() 
@@ -114,18 +122,7 @@ public class LanguageLearningApp {
                 
         frame.add(startPanel, "StartPanel");
         
-        JPanel leaderboardPanel = new JPanel();
-        leaderboardPanel.setLayout(new BorderLayout());
-
-        JTextArea leaderboardArea = new JTextArea("Leaderboard");
-        leaderboardArea.setEditable(false);
-
-        JButton backToStartButton = new JButton("Back To Start");
-        backToStartButton.addActionListener(e -> backToHomeScreen());
-        leaderboardPanel.add(leaderboardArea, BorderLayout.CENTER);
-        leaderboardPanel.add(backToStartButton, BorderLayout.SOUTH);
-
-        frame.add(leaderboardPanel, "LeaderboardPanel");
+        initializeLeaderboardPanel();
 
         frame.setVisible(true);
         
@@ -204,18 +201,9 @@ public class LanguageLearningApp {
         
         // Check if there are no more questions
         if (currentQuestionNum >= questions.size()) 
-        {
-            // Shows a completion message with the user's score , once the quiz is finished
-            JOptionPane.showMessageDialog(frame, "Quiz Completed! Your score: " + score);
-            
-            // Save the user's score to a file
-            saveScoreToFile(userName, score);
-            
-            // Calls the back to the home screen method
-            backToHomeScreen();
-            
-            // Re-initialize the application
-            initialize();
+        {   
+            // Quiz is completed
+            completeQuiz();
             return;
         }
 
@@ -257,8 +245,22 @@ public class LanguageLearningApp {
         }
         // Increment the current question index
         currentQuestionNum++;
-        // Show the next question
-        showNextQuestion(); 
+        
+        // Check if there are more questions left
+        if (currentQuestionNum < questions.size()) {
+            // Show the next question
+            showNextQuestion(); 
+        } else {
+            // All questions answered, complete the quiz
+            completeQuiz();
+        }
+    }
+    
+    private void completeQuiz() {
+        JOptionPane.showMessageDialog(frame, "Quiz Completed! Your score: " + score);
+        subject = (String) languageComboBox.getSelectedItem();
+        saveScoreToDatabase(userName, score, subject);
+        backToHomeScreen();
     }
 
     // Method to validate the user's name
@@ -316,17 +318,72 @@ public class LanguageLearningApp {
         }
     }
     
-     private void showLeaderboard() {
-        ((CardLayout) frame.getContentPane().getLayout()).show(frame.getContentPane(), "LeaderboardPanel");
+    // show the leaderboard from the database
+    private void showLeaderboard() {
+       List<String> leaderboard = getLeaderboard();
+       StringBuilder leaderboardText = new StringBuilder(
+               "====================\n" +
+               "Username | Score | Subject\n"
+               + "====================\n");
+       for (String entry : leaderboard) {
+           leaderboardText.append(entry).append("\n");
+       }
+       leaderboardArea.setText(leaderboardText.toString());
+       ((CardLayout) frame.getContentPane().getLayout()).show(frame.getContentPane(), "LeaderboardPanel");
+    } 
+    
+    // get leaderboard from database
+    private List<String> getLeaderboard() {
+        List<String> leaderboard = new ArrayList<>();
+        String selectSQL = "SELECT USERNAME, SCORE, SUBJECT FROM QUIZRESULTS ORDER BY SCORE DESC";
+        try (Connection connection = DBconnection.getConnection();
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(selectSQL)) {
+            while (rs.next()) {
+                String entry = String.format("%s - %d - (%s)", rs.getString("USERNAME"), rs.getInt("SCORE"), rs.getString("SUBJECT"));
+                leaderboard.add(entry);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return leaderboard;
     }
     
+    // Leaderboard (After pressing button)
+    private void initializeLeaderboardPanel() {
+        // Create the leaderboard panel with BorderLayout
+        JPanel leaderboardPanel = new JPanel(new BorderLayout(10, 10));
+
+        // Add a title label
+        JLabel titleLabel = new JLabel("Leaderboard", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        leaderboardPanel.add(titleLabel, BorderLayout.NORTH);
+        
+        // Create a JTextArea for the leaderboard
+        leaderboardArea = new JTextArea();
+        leaderboardArea.setEditable(false);
+        leaderboardArea.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        // Add button to return back main screen
+        JButton backToStartButton = new JButton("Back To Start");
+        backToStartButton.addActionListener(e -> backToHomeScreen());
+        leaderboardPanel.add(leaderboardArea, BorderLayout.CENTER);
+        leaderboardPanel.add(backToStartButton, BorderLayout.SOUTH);
+
+        frame.add(leaderboardPanel, "LeaderboardPanel");
+    }
     
-    // Method to save the user's score to a file
-    private static void saveScoreToFile(String userName, int score) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("user_scores.txt", true))) {
-            writer.println(userName + "," + score);
-        } catch (IOException e) {
+    // save score to the database
+    private void saveScoreToDatabase(String userName, int score, String subject) {
+        String insertSQL = "INSERT INTO QUIZRESULTS (USERNAME, SCORE, SUBJECT) VALUES (?, ?, ?)";
+        try (Connection connection = DBconnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(insertSQL)) {
+            ps.setString(1, userName);
+            ps.setInt(2, score);
+            ps.setString(3, subject);
+            ps.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-}
+}   
