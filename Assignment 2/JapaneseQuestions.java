@@ -24,7 +24,7 @@ class JapaneseQuestions implements LanguageQuestions {
             new String[]{"Kōen", "Park"},
             new String[]{"Ai", "Love"},
             new String[]{"Ie", "House"},
-            new String[]{"Amerika", "Rice"},
+            new String[]{"Gohan", "Rice"},
             new String[]{"Kuruma", "Car"},
             new String[]{"Okāsan", "Mom"},
             new String[]{"Otōsan", "Dad"},

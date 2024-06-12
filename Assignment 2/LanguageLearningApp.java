@@ -10,18 +10,10 @@ package pkg603_assignment;
  */
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.ResultSet;
 
-public class LanguageLearningApp {
-
+public class LanguageLearningApp 
+{
     // main frame of the application
     private JFrame frame;
     
@@ -40,350 +32,200 @@ public class LanguageLearningApp {
     // label to display the current score
     private JLabel scoreLabel;
     
-    // list to store questions and answers
-    private List<String[]> questions;
+    // button for credits
+    private JButton creditsButton;
     
-    // integer to store the index of the current question
-    private int currentQuestionNum;
+    // button for leaderboard
+    private JButton leaderboardButton;
     
-    // integer to store the user's score
-    private int score;
+    // manages the questions for the quiz
+    private QuestionManager questionManager;
+    
+    // manages the score for the quiz
+    private ScoreManager scoreManager;
+    
+    // manages the leaderboard
+    private LeaderboardManager leaderboardManager;
     
     // string to store the user's name
     private String userName;
     
-    // string to store the user's selected subject
+    // string to store the subject chosen by user
     private String subject;
     
-    // button to show credits
-    private JButton creditsButton;
-    
-    // Added button to show leaderboard
-    private JButton leaderboardButton;
-    
-    // text area for storing score to leaderboard
-    private JTextArea leaderboardArea;
-
-    // Constructor for the main class
+    // string to store the user's name
     public LanguageLearningApp() 
     {
-        // Call the initialize method to set up the GUI
         initialize();
     }
 
+    // Method to set up the initial GUI components
     private void initialize() 
     {
-        //  new JFrame with the title "Language Learning App"
         frame = new JFrame("Language Learning App");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(550, 360);
         frame.setResizable(false);
         frame.setLayout(new CardLayout());
-        
-        // Start Panel
-        JPanel startPanel = new JPanel();
-        startPanel.setLayout(null); 
 
-        // JLabel for the name prompt
-        JLabel nameLabel = new JLabel("Please enter your name:");
-        nameLabel.setBounds(150, 20, 300, 30);
-        startPanel.add(nameLabel);
-
-        // JTextField for user to enter their name
+        // Initialize components for the start panel
         nameField = new JTextField();
-        nameField.setBounds(150, 50, 250, 30);
-        startPanel.add(nameField);
-
-        // JLabel for the language selection prompt
-        JLabel languageLabel = new JLabel("Select language for quiz:");
-        languageLabel.setBounds(150, 90, 300, 30);
-        startPanel.add(languageLabel);
-
-        // JComboBox with language options
         languageComboBox = new JComboBox<>(new String[]{"Korean", "Japanese"});
-        languageComboBox.setBounds(150, 120, 250, 30);
-        startPanel.add(languageComboBox);
-
-        // JButton to start the quiz
         JButton startButton = new JButton("Start Quiz");
-        startButton.setBounds(170, 170, 200, 40);
         startButton.addActionListener(e -> startQuiz());
-        startPanel.add(startButton);
-        
         creditsButton = new JButton("Credits");
-        creditsButton.setBounds(170, 220, 200, 40);
         creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "This Language Quiz was made by Ivan Vay & Taran Singh"));
-        startPanel.add(creditsButton);
-        
         leaderboardButton = new JButton("Leaderboard");
-        leaderboardButton.setBounds(170, 270, 200, 40);
-        leaderboardButton.addActionListener(e -> showLeaderboard());
-        startPanel.add(leaderboardButton);
-                
-        frame.add(startPanel, "StartPanel");
-        
-        initializeLeaderboardPanel();
+        leaderboardButton.addActionListener(e -> leaderboardManager.showLeaderboard());
 
-        frame.setVisible(true);
-        
-        // Quiz Panel
-        JPanel quizPanel = new JPanel();
-        quizPanel.setLayout(null);
+        // Set up the start panel using GUIManager
+        GUIManager.setupStartPanel(frame, nameField, languageComboBox, startButton, creditsButton, leaderboardButton);
 
-        // JLabel for displaying the question
+        // Initialize components for the quiz panel
         questionLabel = new JLabel("Question");
-        questionLabel.setBounds(150, 20, 300, 30);
-        quizPanel.add(questionLabel);
-
-        // Initialize the array of option buttons with a size of 3
         optionButtons = new JButton[3];
+        scoreLabel = new JLabel("Score: 0");
+        JButton backButton = new JButton("Return Home");
+        backButton.addActionListener(e -> confirmBackToHomeScreen());
+
+        // Set up the quiz panel using GUIManager
+        GUIManager.setupQuizPanel(frame, questionLabel, optionButtons, scoreLabel, backButton);
         
-        // Loop to create each option button
-        for (int i = 0; i < 3; i++) 
+        // Adding action listeners to the option buttons
+        for (int i = 0; i < optionButtons.length; i++) 
         {
-            optionButtons[i] = new JButton();
-            optionButtons[i].setBounds(150, 60 + i * 50, 200, 40);
             int finalI = i;
             optionButtons[i].addActionListener(e -> checkAnswer(optionButtons[finalI].getText()));
-            quizPanel.add(optionButtons[i]);
         }
 
-        // JLabel for displaying the score
-        scoreLabel = new JLabel("Score: 0");
-        scoreLabel.setBounds(150, 210, 300, 30);
-        quizPanel.add(scoreLabel);
-        
-        // JButton for returning back to Home Screen
-        JButton backButton = new JButton("Return Home");
-        backButton.setBounds(185, 250, 120, 40);
-        backButton.addActionListener(e -> confirmBackToHomeScreen());
-        quizPanel.add(backButton);
+        // Initialize the leaderboard and score managers
+        leaderboardManager = new LeaderboardManager(frame);
+        scoreManager = new ScoreManager();
 
-        frame.add(quizPanel, "QuizPanel");
+        // Make the frame visible
+        frame.setVisible(true);
     }
 
     // Method to start the quiz
-    private void startQuiz() 
-    {
+    private void startQuiz() {
+        
+        // stores what the user input in the name field as their username
         userName = nameField.getText();
-        String language = (String) languageComboBox.getSelectedItem();
+        
+        // stores the langugae the user selected from the combo box
+        subject = (String) languageComboBox.getSelectedItem();
 
-        // Check if the user's name is valid
+        // if the users username is invalid it shows a pop screen with an error
         if (!isValidName(userName)) 
         {
             JOptionPane.showMessageDialog(frame, "Invalid input. Please enter a proper name without numbers.");
             return;
         }
 
-        // If the selected language is Korean start Koren quiz
-        if (language.equals("Korean")) 
+        
+        List<String[]> questions;
+        
+        // if the subject equals 'Korean' it will get questions from the KoreanQuestion class
+        if (subject.equals("Korean")) 
         {
             questions = KoreanQuestions.getQuestions();
         } 
+        
+        // else it will get the questions from the JapaneseQuestions class 
         else 
         {
-            // else start Japanese quiz
             questions = JapaneseQuestions.getQuestions();
         }
 
-        // Initialize the current question number to 0
-        currentQuestionNum = 0;
-        
-        // Initialize the score to 0
-        score = 0;
-        
-        // Show the first question
+        // Initialize the question manager and reset the score
+        questionManager = new QuestionManager(questions);
+        scoreManager.resetScore();
         showNextQuestion();
     }
 
     // Method to display the next question
-    private void showNextQuestion() {
-        
-        // Check if there are no more questions
-        if (currentQuestionNum >= questions.size()) 
-        {   
-            // Quiz is completed
+    private void showNextQuestion() 
+    {
+        if (!questionManager.hasNextQuestion()) 
+        {
+            // if there is no next question then the quiz is finished
             completeQuiz();
             return;
         }
 
-        // Gets the current question
-        String[] question = questions.get(currentQuestionNum);
-        
-        // Add a new word as the question
+        // Get the current question and options
+        String[] question = questionManager.getCurrentQuestion();
         questionLabel.setText("What is the translation of '" + question[0] + "'?");
-        
-        // Generates options for the current question
-        List<String> options = generateOptions(question[1]);
+        List<String> options = QuestionManager.generateOptions(question[1]);
 
-        // Loop through the option buttons and adds text to each button
+        // Updates the option buttons with new options each question
         for (int i = 0; i < optionButtons.length; i++) 
         {
             optionButtons[i].setText(options.get(i));
         }
 
         // Update the score label
-        scoreLabel.setText("Score: " + score);
+        scoreLabel.setText("Score: " + scoreManager.getScore());
+        
+        // Show the quiz panel
         ((CardLayout) frame.getContentPane().getLayout()).show(frame.getContentPane(), "QuizPanel");
     }
-    
-    // Method to check the user's answer
-    private void checkAnswer(String answer) {  
-        // Get the correct answer for the current question
-        String correctAnswer = questions.get(currentQuestionNum)[1];  
-        // Check if the user's answer is correct
-        if (answer.equals(correctAnswer)) {
-            // Increment the score
-            score++;
-            // Show a message that the answer is correct
-            JOptionPane.showMessageDialog(frame, "Correct!"); 
-             
-        // If the user's answer is incorrect
-        } else {
-            // Show a message that the answer is incorrect
-            JOptionPane.showMessageDialog(frame, "Incorrect. The correct answer is: " + correctAnswer);  
-        }
-        // Increment the current question index
-        currentQuestionNum++;
+
+    // Method to check answer is right
+    private void checkAnswer(String answer) {
+        String correctAnswer = questionManager.getCurrentQuestion()[1];
         
-        // Check if there are more questions left
-        if (currentQuestionNum < questions.size()) {
-            // Show the next question
-            showNextQuestion(); 
-        } else {
-            // All questions answered, complete the quiz
-            completeQuiz();
+        // if the answer is correct it will add to the score and show a pop up window
+        // saying the answer is correct
+        if (answer.equals(correctAnswer)) {
+            scoreManager.incrementScore();
+            JOptionPane.showMessageDialog(frame, "Correct!");
+        } 
+        // if the answer is wrong it will show a pop up window saying the answer is wrong
+        // along with giving them the right answer
+        else {
+            JOptionPane.showMessageDialog(frame, "Incorrect. The correct answer is: " + correctAnswer);
         }
+        questionManager.nextQuestion();
+        showNextQuestion();
     }
-    
+
+    // Method to handle the end of the quiz
     private void completeQuiz() {
-        JOptionPane.showMessageDialog(frame, "Quiz Completed! Your score: " + score);
-        subject = (String) languageComboBox.getSelectedItem();
-        saveScoreToDatabase(userName, score, subject);
+        // once the user is finished it shows a pop up window telling them their final scores
+        JOptionPane.showMessageDialog(frame, "Quiz Completed! Your score: " + scoreManager.getScore());
+        // saves the score into a database
+        scoreManager.saveScoreToDatabase(userName, subject);
         backToHomeScreen();
     }
 
     // Method to validate the user's name
     private boolean isValidName(String userName) {
-        // Check if the name is empty
         if (userName.isEmpty()) {
             return false;
         }
-        // Checks if the username only has letters and is 10 or less characters
+        // the user name must be letters and no longer then 10
         return userName.matches("[a-zA-Z\\s]{1,10}");
     }
 
-    private static List<String> generateOptions(String correctTranslation) 
-    {
-        List<String> options = new ArrayList<>();
-        options.add(correctTranslation);
-
-        // List of options that can be used 
-        List<String> incorrectOptions = new ArrayList<>(Arrays.asList
-        (
-                "Hello", "Friend", "Apple", "Thank You",
-                "School", "Sea", "Rice", "House", "Love", "Park", "Car",
-                "Mom", "Dad", "Brother", "Sister", "Grand-Dad", "Grand-Mother"
-        ));
-
-        // Makes sure that the correct translation is not shown twice
-        incorrectOptions.remove(correctTranslation);
-
-        // Adding two incorrect opitions 
-        options.add(incorrectOptions.get(0));
-        options.add(incorrectOptions.get(1));
-
-        // Shuffle the options list
-        Collections.shuffle(options);
-
-        return options;
-    }
-    
-    // Method to allow user's to return back to home screen
+    // method to return back to home screen
     private void backToHomeScreen() {
         CardLayout cl = (CardLayout) (frame.getContentPane().getLayout());
         cl.show(frame.getContentPane(), "StartPanel");
     }
-    
-    // Method to double check if the user want to return back to home screen
+
+    // conformation method to return to home screen
     private void confirmBackToHomeScreen() {
+        // asks user if they are sure if they want to return back to the home screen
         int userResponse = JOptionPane.showConfirmDialog(frame,
                 "Are you sure you want to return back to the main home screen?",
                 "Confirm",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
+        // if user selects yes , then it will take them back
         if (userResponse == JOptionPane.YES_OPTION) {
             backToHomeScreen();
         }
     }
-    
-    // show the leaderboard from the database
-    private void showLeaderboard() {
-       List<String> leaderboard = getLeaderboard();
-       StringBuilder leaderboardText = new StringBuilder(
-               "====================\n" +
-               "Username | Score | Subject\n"
-               + "====================\n");
-       for (String entry : leaderboard) {
-           leaderboardText.append(entry).append("\n");
-       }
-       leaderboardArea.setText(leaderboardText.toString());
-       ((CardLayout) frame.getContentPane().getLayout()).show(frame.getContentPane(), "LeaderboardPanel");
-    } 
-    
-    // get leaderboard from database
-    private List<String> getLeaderboard() {
-        List<String> leaderboard = new ArrayList<>();
-        String selectSQL = "SELECT USERNAME, SCORE, SUBJECT FROM QUIZRESULTS ORDER BY SCORE DESC";
-        try (Connection connection = DBconnection.getConnection();
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(selectSQL)) {
-            while (rs.next()) {
-                String entry = String.format("%s - %d - (%s)", rs.getString("USERNAME"), rs.getInt("SCORE"), rs.getString("SUBJECT"));
-                leaderboard.add(entry);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return leaderboard;
-    }
-    
-    // Leaderboard (After pressing button)
-    private void initializeLeaderboardPanel() {
-        // Create the leaderboard panel with BorderLayout
-        JPanel leaderboardPanel = new JPanel(new BorderLayout(10, 10));
-
-        // Add a title label
-        JLabel titleLabel = new JLabel("Leaderboard", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        leaderboardPanel.add(titleLabel, BorderLayout.NORTH);
-        
-        // Create a JTextArea for the leaderboard
-        leaderboardArea = new JTextArea();
-        leaderboardArea.setEditable(false);
-        leaderboardArea.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        // Add button to return back main screen
-        JButton backToStartButton = new JButton("Back To Start");
-        backToStartButton.addActionListener(e -> backToHomeScreen());
-        leaderboardPanel.add(leaderboardArea, BorderLayout.CENTER);
-        leaderboardPanel.add(backToStartButton, BorderLayout.SOUTH);
-
-        frame.add(leaderboardPanel, "LeaderboardPanel");
-    }
-    
-    // save score to the database
-    private void saveScoreToDatabase(String userName, int score, String subject) {
-        String insertSQL = "INSERT INTO QUIZRESULTS (USERNAME, SCORE, SUBJECT) VALUES (?, ?, ?)";
-        try (Connection connection = DBconnection.getConnection();
-             PreparedStatement ps = connection.prepareStatement(insertSQL)) {
-            ps.setString(1, userName);
-            ps.setInt(2, score);
-            ps.setString(3, subject);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-}   
+}
