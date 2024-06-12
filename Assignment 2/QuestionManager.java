@@ -6,7 +6,7 @@ package pkg603_assignment;
 
 /**
  *
- * @author User
+ * @author HP
  */
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class QuestionManager {
-
+    
     // List of questions
     private List<String[]> questions;
     

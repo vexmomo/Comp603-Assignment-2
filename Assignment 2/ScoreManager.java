@@ -6,14 +6,13 @@ package pkg603_assignment;
 
 /**
  *
- * @author User
+ * @author HP
  */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class ScoreManager 
-{
+public class ScoreManager {
     // Variable to store the current score
     private int score;
 

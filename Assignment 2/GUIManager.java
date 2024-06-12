@@ -6,7 +6,7 @@ package pkg603_assignment;
 
 /**
  *
- * @author User
+ * @author HP
  */
 import javax.swing.*;
 public class GUIManager 

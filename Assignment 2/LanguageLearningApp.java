@@ -6,50 +6,50 @@ package pkg603_assignment;
 
 /**
  *
- * @author User
+ * @author HP
  */
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class LanguageLearningApp 
-{
+public class LanguageLearningApp {
+
     // main frame of the application
-    private JFrame frame;
-    
+    JFrame frame;
+
     // text field for the user to enter their name
-    private JTextField nameField;
-    
+    JTextField nameField;
+
     // combo box for language selection
-    private JComboBox<String> languageComboBox;
-    
+    JComboBox<String> languageComboBox;
+
     // label to display the current question
     private JLabel questionLabel;
-    
+
     // array of buttons for answer options
     private JButton[] optionButtons;
-    
+
     // label to display the current score
     private JLabel scoreLabel;
-    
+
     // button for credits
     private JButton creditsButton;
-    
+
     // button for leaderboard
     private JButton leaderboardButton;
-    
+
     // manages the questions for the quiz
     private QuestionManager questionManager;
-    
+
     // manages the score for the quiz
-    private ScoreManager scoreManager;
-    
+    ScoreManager scoreManager;
+
     // manages the leaderboard
-    private LeaderboardManager leaderboardManager;
-    
+    LeaderboardManager leaderboardManager;
+
     // string to store the user's name
     private String userName;
-    
+
     // string to store the subject chosen by user
     private String subject;
     
@@ -107,7 +107,7 @@ public class LanguageLearningApp
     }
 
     // Method to start the quiz
-    private void startQuiz() {
+    public void startQuiz() {
         
         // stores what the user input in the name field as their username
         userName = nameField.getText();
@@ -172,7 +172,7 @@ public class LanguageLearningApp
     }
 
     // Method to check answer is right
-    private void checkAnswer(String answer) {
+    public void checkAnswer(String answer) {
         String correctAnswer = questionManager.getCurrentQuestion()[1];
         
         // if the answer is correct it will add to the score and show a pop up window

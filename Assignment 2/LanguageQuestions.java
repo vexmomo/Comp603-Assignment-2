@@ -10,7 +10,6 @@ package pkg603_assignment;
  */
 import java.util.List;
 
-
 // Defining a interface
 interface LanguageQuestions {
     
@@ -23,5 +22,4 @@ interface LanguageQuestions {
    }
     
 }
-
 

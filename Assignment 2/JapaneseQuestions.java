@@ -44,4 +44,3 @@ class JapaneseQuestions implements LanguageQuestions {
         return questions.subList(0, 10); 
     }
 }
-
